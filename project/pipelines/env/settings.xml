@@ -1,0 +1,56 @@
+<!--
+2.0
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+
+    <localRepository>/root/.m2/repository</localRepository>
+
+    <mirrors>
+        <mirror>
+            <id>central-aliyun</id>
+            <mirrorOf>*</mirrorOf>
+            <name>central_of_aliyun</name>
+            <url>https://maven.aliyun.com/nexus/content/repositories/central</url>
+        </mirror>
+    </mirrors>
+
+    <profiles>
+        <profile>
+            <id>central-profile</id>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>https://maven.aliyun.com/repository/central</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <!--<pluginRepositories>-->
+                <!--<pluginRepository>-->
+                    <!--<id>scala-tools.org</id>-->
+                    <!--<name>Scala-tools Maven2 Repository</name>-->
+                    <!--<url>http://scala-tools.org/repo-releases</url>-->
+                <!--</pluginRepository>-->
+            <!--</pluginRepositories>-->
+        </profile>
+    </profiles>
+
+    <!--<pluginGroups>-->
+    <!--<pluginGroup>org.sonarsource.scanner.maven</pluginGroup>-->
+    <!--</pluginGroups>-->
+
+    <activeProfiles>
+        <activeProfile>central-profile</activeProfile>
+    </activeProfiles>
+
+
+
+</settings>
