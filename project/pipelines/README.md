@@ -10,3 +10,5 @@ Build docker image under the folder `pipelines`
 sh build_image.sh
 ```
 
+# Bugs
+- sometimes, it can't trigger the next step when seq pipelines

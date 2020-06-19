@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: kubev1-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0-test-5, pipelines.kubeflow.org/pipeline_compilation_time: '2020-06-10T18:48:55.914990',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "A pipeline with two sequential
+      steps.", "inputs": [{"default": "param1", "name": "param1", "optional": true}],
+      "name": "kubev1 pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0-test-5}
+spec:
+  entrypoint: kubev1-pipeline
+  templates:
+  - name: data-pipeline
+    container:
+      args: [--entry, /kubev1/pipeline_data.py, --path_remote, 'oss://dp/']
+      image: registry-vpc.cn-beijing.aliyuncs.com/he-test/kube-pipelines:latest
+    outputs:
+      parameters:
+      - name: data-pipeline-path_dp
+        valueFrom: {path: /tmp/path_dp}
+      - name: data-pipeline-path_schema
+        valueFrom: {path: /tmp/path_schema}
+      artifacts:
+      - {name: data-pipeline-path_dp, path: /tmp/path_dp}
+      - {name: data-pipeline-path_schema, path: /tmp/path_schema}
+    metadata:
+      labels: {pipelines.kubeflow.org/pipeline-sdk-type: kfp}
+  - name: kubev1-pipeline
+    dag:
+      tasks:
+      - {name: data-pipeline, template: data-pipeline}
+      - name: training-pipeline
+        template: training-pipeline
+        dependencies: [data-pipeline]
+        arguments:
+          parameters:
+          - {name: data-pipeline-path_dp, value: '{{tasks.data-pipeline.outputs.parameters.data-pipeline-path_dp}}'}
+          - {name: data-pipeline-path_schema, value: '{{tasks.data-pipeline.outputs.parameters.data-pipeline-path_schema}}'}
+  - name: training-pipeline
+    container:
+      args: [--entry, /kubev1/pipeline_training.py, --path_remote, 'oss://peng/tp/',
+        --path_dp, '{{inputs.parameters.data-pipeline-path_dp}}', --path_schema, '{{inputs.parameters.data-pipeline-path_schema}}']
+      image: registry-vpc.cn-beijing.aliyuncs.com/he-test/kube-pipelines:latest
+    inputs:
+      parameters:
+      - {name: data-pipeline-path_dp}
+      - {name: data-pipeline-path_schema}
+    outputs:
+      artifacts:
+      - {name: training-pipeline-path_tp, path: /tmp/result}
+    metadata:
+      labels: {pipelines.kubeflow.org/pipeline-sdk-type: kfp}
+  arguments:
+    parameters:
+    - {name: param1, value: param1}
+  serviceAccountName: pipeline-runner

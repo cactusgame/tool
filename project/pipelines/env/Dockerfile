@@ -40,3 +40,5 @@ ADD ./env/exit_point.sh /root/exit_point.sh
 RUN chmod +x /root/exit_point.sh
 
 COPY ./ ./
+ENTRYPOINT ["./entry_point.sh"]
+
